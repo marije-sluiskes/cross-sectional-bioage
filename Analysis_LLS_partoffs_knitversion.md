@@ -2,7 +2,6 @@ Comparing cross-sectional biological age prediction approaches with
 naive approaches approaches
 ================
 Marije Sluiskes
-12-01-2023
 
 This document contains the code I used for the real data analysis as
 provided in our paper
@@ -263,7 +262,7 @@ p1 <- ggplot(mapping = aes(coxbeta_shuffle)) +
 p1
 ```
 
-![](Analysis_LLS_partoffs_knitversion_files/figure-gfm/unnamed-chunk-8-1.pdf)<!-- -->
+![](Analysis_LLS_partoffs_knitversion_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
 Note that ridge regression (method 1) is slightly better (i.e. lower
 MSE) than MLR (method 2) in predicting chronological age, as one would
