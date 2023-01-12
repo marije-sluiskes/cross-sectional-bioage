@@ -1,2 +1,2 @@
 # Synthetic data examples 
-This repo contains the Rmd-scripts with the code to generate sythetic data [Example 1](Example1.md) and [Example 2](Example1.md) as provided in the paper `Clarifying biological and statistical assumptions of cross-sectional biological age predictors' (link to be added).
+This repo contains the Rmd-scripts with the code to generate sythetic data [Example 1](Example1.md) and [Example 2](Example1.md) as provided in the paper [`Clarifying biological and statistical assumptions of cross-sectional biological age predictors'](https://www.biorxiv.org/content/10.1101/2022.09.08.507098v1.full.pdf). It also contains a [PDF](Analysis_LLS_partoffs_knitversion.pdf) with the code and output as provided in the real data section of the paper. 
