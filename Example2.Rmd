@@ -55,8 +55,124 @@ xanti <- GenerateSyntheticData(n, mean_c, sd_c, s_delta,
                           s_j = c(5, 5, 5))
 ```
 
-# Obtain biological age estimates: xfalse 
-Identical-association assumption does not hold (scenario C).
+# Scenario A: Identical-association assumption holds
+```{r}
+# define which synthetic data set to use 
+df_est <- xtrue
+
+# define for convenience's sake
+df_vars <- as.data.frame(scale(df_est[,1:vars])) # normalized (scaled and centered)
+c <- df_est$c
+b <- df_est$b
+
+# Klemera-Doubal
+b_kd <- GetKDestimates(df_vars = df_vars, c = c)[,1]
+
+# MLR
+fit_mlr <- lm(c ~ ., data = df_vars)
+b_mlr <- fit_mlr$fitted.values
+
+# equal weights
+b_ew <- rowSums(mean(abs(fit_mlr$coefficients[-1]) * sign(fit_mlr$coefficients[-1])) * df_vars) + fit_mlr$coefficients[1]
+```
+
+```{r}
+# create data frame with all relevant variables 
+df_all <- as.data.frame(cbind(c, b, b_kd, b_mlr, b_ew))
+
+# obtain predicted Delta
+df_all$delta_mlr <- lm(b_mlr ~ c, data = df_all)$residuals
+df_all$delta_ew <- lm(b_ew ~ c, data = df_all)$residuals
+df_all$delta_kd <- b_kd - c
+
+# plot Delta against predicted Delta
+p_delta_mlr <- ggplot(df_all) + 
+        geom_point(aes(x = b-c, y = delta_mlr), size = 0.5) +
+        theme_bw()+
+        labs (x = "\u0394", y = "Predicted \u0394", title = "MLR") +
+        coord_cartesian(xlim = c(-20, 20), ylim = c(-20, 20)) +
+        geom_abline(slope = 1)+
+        theme(plot.title = element_text(hjust = 0.5))
+p_delta_kd <- ggplot(df_all) + 
+        geom_point(aes(x = b-c, y = delta_kd), size = 0.5) +
+        theme_bw()+
+        labs (x = "\u0394", y = "Predicted \u0394" , title = "Klemera-Doubal")+
+        coord_cartesian(xlim = c(-20, 20), ylim = c(-20, 20)) +
+        geom_abline(slope = 1)+
+        theme(plot.title = element_text(hjust = 0.5))
+p_delta_ew <- ggplot(df_all) + 
+        geom_point(aes(x = b-c, y = delta_ew), size = 0.5) +
+        theme_bw()+
+        labs (x = "\u0394", y = "Predicted \u0394" , title = "Same weights") +
+        coord_cartesian(xlim = c(-20, 20), ylim = c(-20, 20)) +
+        geom_abline(slope = 1)+
+        theme(plot.title = element_text(hjust = 0.5))
+
+p_delta_all <- grid.arrange(p_delta_mlr, p_delta_kd, p_delta_ew, ncol = 3)
+ggsave(p_delta_all, filename = "xtrue-DeltapredDelta.pdf", device = cairo_pdf, 
+       path = "img", width = 7, height = 3.5)
+
+```
+# Scenario B: Identical-association assumption does not hold (inverse association)
+```{r}
+# define which synthetic data set to use 
+df_est <- xanti
+
+# define for convenience's sake
+df_vars <- as.data.frame(scale(df_est[,1:vars])) # normalized (scaled and centered)
+c <- df_est$c
+b <- df_est$b
+
+# Klemera-Doubal
+b_kd <- GetKDestimates(df_vars = df_vars, c = c)[,1]
+
+# MLR
+fit_mlr <- lm(c ~ ., data = df_vars)
+b_mlr <- fit_mlr$fitted.values
+
+# equal weights
+b_ew <- rowSums(mean(abs(fit_mlr$coefficients[-1]) * sign(fit_mlr$coefficients[-1])) * df_vars) + fit_mlr$coefficients[1]
+```
+
+```{r}
+# create data frame with all relevant variables 
+df_all <- as.data.frame(cbind(c, b, b_kd, b_mlr, b_ew))
+
+# obtain predicted Delta
+df_all$delta_mlr <- lm(b_mlr ~ c, data = df_all)$residuals
+df_all$delta_ew <- lm(b_ew ~ c, data = df_all)$residuals
+df_all$delta_kd <- b_kd - c
+
+# plot Delta against predicted Delta
+p_delta_mlr <- ggplot(df_all) + 
+        geom_point(aes(x = b-c, y = delta_mlr), size = 0.5) +
+        theme_bw()+
+        labs (x = "\u0394", y = "Predicted \u0394", title = "MLR") +
+        coord_cartesian(xlim = c(-20, 20), ylim = c(-20, 20)) +
+        geom_abline(slope = 1)+
+        theme(plot.title = element_text(hjust = 0.5))
+p_delta_kd <- ggplot(df_all) + 
+        geom_point(aes(x = b-c, y = delta_kd), size = 0.5) +
+        theme_bw()+
+        labs (x = "\u0394", y = "Predicted \u0394" , title = "Klemera-Doubal")+
+        coord_cartesian(xlim = c(-20, 20), ylim = c(-20, 20)) +
+        geom_abline(slope = 1)+
+        theme(plot.title = element_text(hjust = 0.5))
+p_delta_ew <- ggplot(df_all) + 
+        geom_point(aes(x = b-c, y = delta_ew), size = 0.5) +
+        theme_bw()+
+        labs (x = "\u0394", y = "Predicted \u0394" , title = "Same weights") +
+        coord_cartesian(xlim = c(-20, 20), ylim = c(-20, 20)) +
+        geom_abline(slope = 1)+
+        theme(plot.title = element_text(hjust = 0.5))
+
+p_delta_all <- grid.arrange(p_delta_mlr, p_delta_kd, p_delta_ew, ncol = 3)
+ggsave(p_delta_all, filename = "xanti-DeltapredDelta.pdf", device = cairo_pdf, 
+       path = "img", width = 7, height = 3.5)
+
+```
+
+# Scenario C: Identical-association assumption does not hold (random association)
 ```{r}
 # define which synthetic data set to use 
 df_est <- xfalse
@@ -116,69 +232,7 @@ ggsave(p_delta_all, filename = "xfalse-DeltapredDelta.pdf", device = cairo_pdf,
 
 ```
 
-# Obtain biological age estimates: xtrue
-Identical-assocation assumption holds (scenario A).
-```{r}
-# define which synthetic data set to use 
-df_est <- xtrue
-
-# define for convenience's sake
-df_vars <- as.data.frame(scale(df_est[,1:vars])) # normalized (scaled and centered)
-c <- df_est$c
-b <- df_est$b
-
-# Klemera-Doubal
-b_kd <- GetKDestimates(df_vars = df_vars, c = c)[,1]
-
-# MLR
-fit_mlr <- lm(c ~ ., data = df_vars)
-b_mlr <- fit_mlr$fitted.values
-
-# equal weights
-b_ew <- rowSums(mean(abs(fit_mlr$coefficients[-1]) * sign(fit_mlr$coefficients[-1])) * df_vars) + fit_mlr$coefficients[1]
-```
-
-## Plot
-```{r}
-# create data frame with all relevant variables 
-df_all <- as.data.frame(cbind(c, b, b_kd, b_mlr, b_ew))
-
-# obtain predicted Delta
-df_all$delta_mlr <- lm(b_mlr ~ c, data = df_all)$residuals
-df_all$delta_ew <- lm(b_ew ~ c, data = df_all)$residuals
-df_all$delta_kd <- b_kd - c
-
-# plot Delta against predicted Delta
-p_delta_mlr <- ggplot(df_all) + 
-        geom_point(aes(x = b-c, y = delta_mlr), size = 0.5) +
-        theme_bw()+
-        labs (x = "\u0394", y = "Predicted \u0394", title = "MLR") +
-        coord_cartesian(xlim = c(-20, 20), ylim = c(-20, 20)) +
-        geom_abline(slope = 1)+
-        theme(plot.title = element_text(hjust = 0.5))
-p_delta_kd <- ggplot(df_all) + 
-        geom_point(aes(x = b-c, y = delta_kd), size = 0.5) +
-        theme_bw()+
-        labs (x = "\u0394", y = "Predicted \u0394" , title = "Klemera-Doubal")+
-        coord_cartesian(xlim = c(-20, 20), ylim = c(-20, 20)) +
-        geom_abline(slope = 1)+
-        theme(plot.title = element_text(hjust = 0.5))
-p_delta_ew <- ggplot(df_all) + 
-        geom_point(aes(x = b-c, y = delta_ew), size = 0.5) +
-        theme_bw()+
-        labs (x = "\u0394", y = "Predicted \u0394" , title = "Same weights") +
-        coord_cartesian(xlim = c(-20, 20), ylim = c(-20, 20)) +
-        geom_abline(slope = 1)+
-        theme(plot.title = element_text(hjust = 0.5))
-
-p_delta_all <- grid.arrange(p_delta_mlr, p_delta_kd, p_delta_ew, ncol = 3)
-ggsave(p_delta_all, filename = "xtrue-DeltapredDelta.pdf", device = cairo_pdf, 
-       path = "img", width = 7, height = 3.5)
-
-```
-
-# Obtain biological age estimates: xhalf
-Identical-association assumption partially holds (scenario D).
+# Scenario D: Identical-association assumption partially holds 
 ```{r}
 # define which synthetic data set to use 
 df_est <- xhalf
@@ -199,7 +253,6 @@ b_mlr <- fit_mlr$fitted.values
 b_ew <- rowSums(mean(abs(fit_mlr$coefficients[-1]) * sign(fit_mlr$coefficients[-1])) * df_vars) + fit_mlr$coefficients[1]
 ```
 
-## Plot
 ```{r}
 # create data frame with all relevant variables 
 df_all <- as.data.frame(cbind(c, b, b_kd, b_mlr, b_ew))
@@ -238,68 +291,8 @@ ggsave(p_delta_all, filename = "xhalf-DeltapredDelta.pdf", device = cairo_pdf,
 
 ```
 
-# Obtain biological age estimates: xanti
-Identical-association assumption does not hold: reverse association holds (scenario B).
-```{r}
-# define which synthetic data set to use 
-df_est <- xanti
 
-# define for convenience's sake
-df_vars <- as.data.frame(scale(df_est[,1:vars])) # normalized (scaled and centered)
-c <- df_est$c
-b <- df_est$b
-
-# Klemera-Doubal
-b_kd <- GetKDestimates(df_vars = df_vars, c = c)[,1]
-
-# MLR
-fit_mlr <- lm(c ~ ., data = df_vars)
-b_mlr <- fit_mlr$fitted.values
-
-# equal weights
-b_ew <- rowSums(mean(abs(fit_mlr$coefficients[-1]) * sign(fit_mlr$coefficients[-1])) * df_vars) + fit_mlr$coefficients[1]
-```
-
-## Plot
-```{r}
-# create data frame with all relevant variables 
-df_all <- as.data.frame(cbind(c, b, b_kd, b_mlr, b_ew))
-
-# obtain predicted Delta
-df_all$delta_mlr <- lm(b_mlr ~ c, data = df_all)$residuals
-df_all$delta_ew <- lm(b_ew ~ c, data = df_all)$residuals
-df_all$delta_kd <- b_kd - c
-
-# plot Delta against predicted Delta
-p_delta_mlr <- ggplot(df_all) + 
-        geom_point(aes(x = b-c, y = delta_mlr), size = 0.5) +
-        theme_bw()+
-        labs (x = "\u0394", y = "Predicted \u0394", title = "MLR") +
-        coord_cartesian(xlim = c(-20, 20), ylim = c(-20, 20)) +
-        geom_abline(slope = 1)+
-        theme(plot.title = element_text(hjust = 0.5))
-p_delta_kd <- ggplot(df_all) + 
-        geom_point(aes(x = b-c, y = delta_kd), size = 0.5) +
-        theme_bw()+
-        labs (x = "\u0394", y = "Predicted \u0394" , title = "Klemera-Doubal")+
-        coord_cartesian(xlim = c(-20, 20), ylim = c(-20, 20)) +
-        geom_abline(slope = 1)+
-        theme(plot.title = element_text(hjust = 0.5))
-p_delta_ew <- ggplot(df_all) + 
-        geom_point(aes(x = b-c, y = delta_ew), size = 0.5) +
-        theme_bw()+
-        labs (x = "\u0394", y = "Predicted \u0394" , title = "Same weights") +
-        coord_cartesian(xlim = c(-20, 20), ylim = c(-20, 20)) +
-        geom_abline(slope = 1)+
-        theme(plot.title = element_text(hjust = 0.5))
-
-p_delta_all <- grid.arrange(p_delta_mlr, p_delta_kd, p_delta_ew, ncol = 3)
-ggsave(p_delta_all, filename = "xanti-DeltapredDelta.pdf", device = cairo_pdf, 
-       path = "img", width = 7, height = 3.5)
-
-```
-
-# Illustration that the scenarios cannot be distinguished based on observable data
+# The scenarios cannot be distinguished based on observable data
 ```{r}
 p_x1_true <- ggplot(df_all) + 
         geom_point(aes(x = c, y = scale(xtrue$V1)), size = 0.5) +
