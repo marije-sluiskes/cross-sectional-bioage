@@ -249,20 +249,23 @@ p1 <- ggplot(mapping = aes(coxbeta_shuffle)) +
   geom_histogram(col = "black", fill = "black") + 
   labs(x = "Regression coefficient value") +
   geom_vline(aes(xintercept = xintercept, color = Methods), 
-             line.data, size = c(1,1,1.3), linetype=c(1, 1, 2)) + 
-  theme_bw() +
+             line.data, size = c(1,1,1), linetype=c(1, 1, 1)) + 
+  geom_vline(aes(xintercept = median(coxbeta_shuffle)), col = "grey30", linetype = 2, size = 1) + 
+  theme_minimal() +
   theme(axis.title.y=element_blank(),
         axis.text.y=element_blank(),
         axis.ticks.y=element_blank()) +
   scale_color_manual(values = line.data$color, 
                      breaks =c("1: Ridge-based \u0394", "2: MLR-based \u0394", 
                                "3: Mean(MRL-coef)-based \u0394")) 
-
-# ggsave("coef_comp.jpg", width = 7, height = 5)
 p1
 ```
 
 ![](Analysis_LLS_partoffs_knitversion_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+
+``` r
+ggsave(p1, filename = "coef_comps.eps", width = 7, height = 5, device = cairo_pdf)
+```
 
 Note that ridge regression (method 1) is slightly better (i.e. lower
 MSE) than MLR (method 2) in predicting chronological age, as one would
