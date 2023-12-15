@@ -264,7 +264,7 @@ p1
 ![](Analysis_LLS_partoffs_knitversion_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
 ``` r
-ggsave(p1, filename = "coef_comps.eps", width = 7, height = 5, device = cairo_pdf)
+#ggsave(p1, filename = "coef_comps.eps", width = 7, height = 5, device = cairo_pdf)
 ```
 
 Note that ridge regression (method 1) is slightly better (i.e. lower
